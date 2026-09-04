@@ -1,0 +1,8 @@
+streamlit
+numpy
+pillow
+torch
+torchvision
+rasterio
+requests
+pystac-client

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Environment / secrets
+.env
+*.env
+
+# Large satellite / raster data
+*.jp2
+*.JP2
+*.tif
+*.TIF
+*.tiff
+*.TIFF
+*.SAFE/
+*.zip
+
+# Training datasets
+data/raw/
+data/processed/
+data/train/
+data/val/
+data/test/
+
+# Generated outputs
+outputs/*
+!outputs/.gitkeep
+
+# Logs
+*.log
+
+# Large model checkpoints
+*.pth
+*.pt
+*.ckpt
