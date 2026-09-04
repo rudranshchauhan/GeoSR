@@ -40,6 +40,5 @@ outputs/*
 *.log
 
 # Large model checkpoints
-*.pth
 *.pt
 *.ckpt
