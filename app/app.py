@@ -403,8 +403,6 @@ with st.sidebar:
     Input — Sentinel-2 RGB or local raster imagery
     Output — 4x enlarged pixel grid
     Method — Bicubic base plus learned EDSR residual
-
-    Output is AI-enhanced imagery, not verified new ground detail.
     """)
 
 # ============================================================
