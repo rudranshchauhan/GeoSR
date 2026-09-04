@@ -62,7 +62,7 @@ def pil_to_base64(img: Image.Image, fmt="JPEG", quality=92) -> str:
 
 
 def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
-                          label_left="GeoSR 4× residual reconstruction", label_right="Bicubic 4× baseline"):
+                          label_left="GeoSR reconstruction", label_right="Bicubic baseline"):
     """Renders an interactive curtain wipe slider with hover-to-zoom."""
     b64_left = pil_to_base64(img_left)
     b64_right = pil_to_base64(img_right)
@@ -73,11 +73,10 @@ def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
     <head>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+        body {{ background: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; }}
         .slider-wrap {{
             position: relative; width: 100%; height: 580px; overflow: hidden;
-            border-radius: 6px; border: 1px solid #334155;
-            user-select: none; cursor: ew-resize; background: #0f172a;
+            border-radius: 18px; user-select: none; cursor: ew-resize; background: #000;
         }}
         .img-layer {{
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -85,32 +84,31 @@ def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
         }}
         .left-layer {{ clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }}
         .curtain {{
-            position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
-            background: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.6); z-index: 10;
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 1.5px;
+            background: rgba(255,255,255,0.85); z-index: 10;
         }}
         .handle {{
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 36px; height: 36px; border-radius: 50%; background: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4); display: flex;
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35); display: flex;
             align-items: center; justify-content: center;
-            font-weight: 700; font-size: 14px; color: #0f172a;
+            font-weight: 500; font-size: 15px; color: #1c1c1e;
         }}
         .badge {{
-            position: absolute; top: 10px; padding: 4px 10px; border-radius: 3px;
-            font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-            text-transform: uppercase; z-index: 8;
+            position: absolute; top: 14px; padding: 6px 13px; border-radius: 980px;
+            font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em;
+            z-index: 8; background: rgba(28,28,30,0.55); backdrop-filter: blur(12px);
+            color: #f5f5f7;
         }}
-        .badge-l {{ left: 10px; background: rgba(2,132,199,0.9); color: #fff; }}
-        .badge-r {{ right: 10px; background: rgba(51,65,85,0.88); color: #cbd5e1; }}
-        /* Zoom lens */
+        .badge-l {{ left: 14px; }}
+        .badge-r {{ right: 14px; color: #98989d; }}
         .zoom-lens {{
-            display: none; position: absolute; width: 180px; height: 180px;
-            border: 2px solid #38bdf8; border-radius: 50%; pointer-events: none;
-            z-index: 20; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: none; position: absolute; width: 190px; height: 190px;
+            border: 1px solid rgba(255,255,255,0.35); border-radius: 50%; pointer-events: none;
+            z-index: 20; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
         }}
-        .zoom-lens img {{
-            position: absolute; pointer-events: none;
-        }}
+        .zoom-lens img {{ position: absolute; pointer-events: none; }}
     </style>
     </head>
     <body>
@@ -122,8 +120,8 @@ def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
             <div class="curtain" id="line"><div class="handle">&harr;</div></div>
             <div class="zoom-lens" id="lens"><img id="lensImg" src="data:image/jpeg;base64,{b64_left}"></div>
         </div>
-        <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:6px;">
-            Drag divider to compare | Hold Shift + hover to magnify (3x zoom)
+        <p style="text-align:center;color:#6e6e73;font-size:13px;margin-top:14px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;">
+            Drag to compare &nbsp;&middot;&nbsp; hold shift and hover to magnify
         </p>
         <script>
             const ctr=document.getElementById('ctr'), imgL=document.getElementById('imgL'),
@@ -147,12 +145,11 @@ def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
                     const r=ctr.getBoundingClientRect();
                     const mx=e.clientX-r.left, my=e.clientY-r.top;
                     lens.style.display='block';
-                    lens.style.left=(mx-90)+'px'; lens.style.top=(my-90)+'px';
+                    lens.style.left=(mx-95)+'px'; lens.style.top=(my-95)+'px';
                     const zoom=3;
                     const natW=imgL.naturalWidth, natH=imgL.naturalHeight;
-                    const scaleX=natW/r.width, scaleY=natH/r.height;
                     lensImg.style.width=(r.width*zoom)+'px'; lensImg.style.height=(r.height*zoom)+'px';
-                    lensImg.style.left=(-mx*zoom+90)+'px'; lensImg.style.top=(-my*zoom+90)+'px';
+                    lensImg.style.left=(-mx*zoom+95)+'px'; lensImg.style.top=(-my*zoom+95)+'px';
                 }} else {{ lens.style.display='none'; }}
             }});
             ctr.addEventListener('mouseleave',()=>{{lens.style.display='none';}});
@@ -168,7 +165,7 @@ def render_curtain_slider(img_left: Image.Image, img_right: Image.Image,
 
 
 def render_zoom_comparison(img_left: Image.Image, img_right: Image.Image,
-                           label_left="Sentinel-2 Baseline", label_right="GeoSR Enhanced"):
+                           label_left="Sentinel-2 baseline", label_right="GeoSR enhanced"):
     """Interactive side-by-side with synchronized hover-to-zoom magnifier."""
     b64_l = pil_to_base64(img_left)
     b64_r = pil_to_base64(img_right)
@@ -178,28 +175,28 @@ def render_zoom_comparison(img_left: Image.Image, img_right: Image.Image,
     <head>
     <style>
         * {{ margin:0; padding:0; box-sizing:border-box; }}
-        body {{ background:transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-        .grid {{ display:flex; gap:8px; width:100%; }}
+        body {{ background:transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; }}
+        .grid {{ display:flex; gap:12px; width:100%; }}
         .panel {{
-            flex:1; position:relative; overflow:hidden; border-radius:6px;
-            border:1px solid #334155; background:#0f172a; height:560px;
+            flex:1; position:relative; overflow:hidden; border-radius:18px;
+            background:#000; height:560px;
         }}
         .panel img {{ width:100%; height:100%; object-fit:contain; display:block; }}
         .panel-label {{
-            position:absolute; top:8px; left:8px; padding:3px 8px; border-radius:3px;
-            font-size:11px; font-weight:600; text-transform:uppercase;
-            background:rgba(15,23,42,0.85); color:#94a3b8; letter-spacing:0.03em;
+            position:absolute; top:14px; left:14px; padding:6px 13px; border-radius:980px;
+            font-size:12.5px; font-weight:500;
+            background:rgba(28,28,30,0.55); backdrop-filter: blur(12px); color:#f5f5f7;
             z-index:5;
         }}
         .magnifier {{
-            display:none; position:absolute; width:200px; height:200px;
-            border:2px solid #38bdf8; border-radius:6px; pointer-events:none;
-            z-index:10; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.5);
+            display:none; position:absolute; width:210px; height:210px;
+            border:1px solid rgba(255,255,255,0.35); border-radius:14px; pointer-events:none;
+            z-index:10; overflow:hidden; box-shadow:0 16px 48px rgba(0,0,0,0.5);
         }}
         .magnifier img {{ position:absolute; pointer-events:none; }}
         .zoom-label {{
-            position:absolute; bottom:4px; right:4px; font-size:10px; color:#38bdf8;
-            background:rgba(0,0,0,0.7); padding:1px 5px; border-radius:2px; z-index:11;
+            position:absolute; bottom:6px; right:6px; font-size:10.5px; color:#f5f5f7;
+            background:rgba(28,28,30,0.7); padding:2px 7px; border-radius:980px; z-index:11;
         }}
     </style>
     </head>
@@ -216,8 +213,8 @@ def render_zoom_comparison(img_left: Image.Image, img_right: Image.Image,
                 <div class="magnifier" id="magR"><img id="magImgR" src="data:image/jpeg;base64,{b64_r}"><div class="zoom-label">4x</div></div>
             </div>
         </div>
-        <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:6px;">
-            Hover over either panel to magnify both views simultaneously (4x zoom)
+        <p style="text-align:center;color:#6e6e73;font-size:13px;margin-top:14px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;">
+            Hover either panel to magnify both views together
         </p>
         <script>
             const zoom=4;
@@ -235,14 +232,14 @@ def render_zoom_comparison(img_left: Image.Image, img_right: Image.Image,
 
                     [mag,oMag].forEach(m=>{{m.style.display='block';}});
 
-                    mag.style.left=(mx-100)+'px'; mag.style.top=(my-100)+'px';
+                    mag.style.left=(mx-105)+'px'; mag.style.top=(my-105)+'px';
                     magImg.style.width=(r.width*zoom)+'px'; magImg.style.height=(r.height*zoom)+'px';
-                    magImg.style.left=(-mx*zoom+100)+'px'; magImg.style.top=(-my*zoom+100)+'px';
+                    magImg.style.left=(-mx*zoom+105)+'px'; magImg.style.top=(-my*zoom+105)+'px';
 
                     const omx=px*or2.width, omy=py*or2.height;
-                    oMag.style.left=(omx-100)+'px'; oMag.style.top=(omy-100)+'px';
+                    oMag.style.left=(omx-105)+'px'; oMag.style.top=(omy-105)+'px';
                     oMagImg.style.width=(or2.width*zoom)+'px'; oMagImg.style.height=(or2.height*zoom)+'px';
-                    oMagImg.style.left=(-omx*zoom+100)+'px'; oMagImg.style.top=(-omy*zoom+100)+'px';
+                    oMagImg.style.left=(-omx*zoom+105)+'px'; oMagImg.style.top=(-omy*zoom+105)+'px';
                 }});
                 panel.addEventListener('mouseleave', ()=>{{
                     [mag,oMag].forEach(m=>{{m.style.display='none';}});
@@ -262,56 +259,114 @@ def render_zoom_comparison(img_left: Image.Image, img_right: Image.Image,
 # ============================================================
 
 st.set_page_config(
-    page_title="GeoSR | Satellite Super-Resolution Platform",
+    page_title="GeoSR",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 st.markdown("""
 <style>
-    .reportview-container .main .block-container {
-        max-width: 1300px;
-        padding-top: 1.5rem;
+    :root {
+        --bg: #000000;
+        --surface-1: #1c1c1e;
+        --surface-2: #2c2c2e;
+        --hairline: rgba(255,255,255,0.08);
+        --hairline-strong: rgba(255,255,255,0.14);
+        --text-primary: #f5f5f7;
+        --text-secondary: #98989d;
+        --text-tertiary: #6e6e73;
+        --accent: #2f9bff;
     }
-    .header-bar {
-        padding: 1rem 1.4rem;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        margin-bottom: 1.2rem;
+
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: var(--bg) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
+        color: var(--text-primary);
     }
-    .h-title {
-        font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;
-        color: #0f172a; margin-bottom: 0.15rem;
+    [data-testid="stHeader"] { background-color: transparent !important; }
+
+    [data-testid="stSidebar"] {
+        background-color: var(--surface-1) !important;
+        border-right: 1px solid var(--hairline);
     }
-    .h-desc { font-size: 0.88rem; color: #475569; margin-bottom: 0.5rem; }
-    .spec-tag {
-        display: inline-block; padding: 2px 8px; font-size: 0.72rem;
-        font-weight: 600; border-radius: 4px; margin-right: 5px;
-        background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;
+    [data-testid="stSidebar"] * { color: var(--text-secondary) !important; }
+    [data-testid="stSidebar"] h3 {
+        color: var(--text-primary) !important; font-weight: 590 !important;
+        font-size: 15px !important; letter-spacing: -0.01em;
     }
-    .kpi-card {
-        padding: 0.85rem 1rem; background: #f8fafc;
-        border: 1px solid #e2e8f0; border-radius: 6px; text-align: center;
+    [data-testid="stMarkdownContainer"] p, label, .stCaption { color: var(--text-secondary) !important; }
+
+    .reportview-container .main .block-container { max-width: 1180px; padding-top: 2.2rem; }
+
+    .hero {
+        padding: 0 0 1.8rem 0;
+        margin-bottom: 1.6rem;
+        border-bottom: 1px solid var(--hairline);
     }
-    .kpi-val { font-size: 1.3rem; font-weight: 700; color: #0284c7; }
-    .kpi-lbl {
-        font-size: 0.7rem; font-weight: 600; color: #64748b;
-        text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px;
+    .hero-title {
+        font-size: 2.1rem; font-weight: 590; letter-spacing: -0.025em;
+        color: var(--text-primary); margin-bottom: 0.4rem; line-height: 1.15;
+    }
+    .hero-sub {
+        font-size: 1rem; font-weight: 400; color: var(--text-secondary);
+        letter-spacing: -0.005em; max-width: 620px; line-height: 1.5;
+    }
+
+    .stat-row {
+        display: flex; padding: 1.4rem 0; margin-bottom: 1.6rem;
+        border-bottom: 1px solid var(--hairline);
+    }
+    .stat-item { flex: 1; padding: 0 1.6rem; border-left: 1px solid var(--hairline); }
+    .stat-item:first-child { border-left: none; padding-left: 0; }
+    .stat-val {
+        font-size: 2rem; font-weight: 590; letter-spacing: -0.02em; color: var(--text-primary);
+        line-height: 1.1;
+    }
+    .stat-lbl {
+        font-size: 0.83rem; font-weight: 400; color: var(--text-tertiary);
+        margin-top: 0.3rem; letter-spacing: -0.005em;
+    }
+
+    .stTabs [data-baseweb="tab-list"] { gap: 24px; border-bottom: 1px solid var(--hairline); }
+    .stTabs [data-baseweb="tab"] {
+        font-size: 0.92rem; font-weight: 450; color: var(--text-tertiary);
+        background: transparent; padding-bottom: 10px;
+    }
+    .stTabs [aria-selected="true"] {
+        color: var(--text-primary) !important; border-bottom-color: var(--text-primary) !important;
+    }
+
+    .stButton button, .stDownloadButton button {
+        background: var(--surface-2) !important; color: var(--text-primary) !important;
+        border: none !important; border-radius: 980px !important;
+        font-weight: 500 !important; font-size: 0.9rem !important;
+        padding: 0.55rem 1.3rem !important;
+    }
+    .stButton button:hover, .stDownloadButton button:hover {
+        background: var(--accent) !important; color: #ffffff !important;
+    }
+
+    [data-testid="stTable"] table { background: transparent !important; color: var(--text-secondary) !important; }
+    [data-testid="stTable"] th {
+        background: transparent !important; color: var(--text-tertiary) !important;
+        font-weight: 500 !important; font-size: 0.82rem !important;
+        border-bottom: 1px solid var(--hairline-strong) !important;
+    }
+    [data-testid="stTable"] td {
+        border-color: var(--hairline) !important; font-size: 0.88rem !important;
+        color: var(--text-secondary) !important;
+    }
+
+    [data-testid="stAlert"] {
+        background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="header-bar">
-    <div class="h-title">GeoSR | Satellite Super-Resolution Platform</div>
-    <div class="h-desc">4× AI-assisted visual enhancement for Sentinel-2 RGB imagery</div>
-    <div>
-        <span class="spec-tag">MISSION: COPERNICUS SENTINEL-2 MSI</span>
-        <span class="spec-tag">ENGINE: DETAILEDSR (4X)</span>
-        <span class="spec-tag">OUTPUT: 4× PIXEL GRID</span>
-        <span class="spec-tag">MODE: BICUBIC + LEARNED RESIDUAL</span>
-    </div>
+<div class="hero">
+    <div class="hero-title">GeoSR</div>
+    <div class="hero-sub">4x AI-assisted visual enhancement for Sentinel-2 satellite imagery, streamed live from the Copernicus catalog.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -320,35 +375,36 @@ st.markdown("""
 # ============================================================
 
 with st.sidebar:
-    st.markdown("### Data Source")
+    st.markdown("### Data source")
     data_source = st.radio(
-        "Select Pipeline Mode:",
+        "Select pipeline mode",
         [
             "Live Copernicus Satellite Stream",
             "Regional Benchmark Presets",
             "Local File Upload"
         ],
-        index=1
+        index=1,
+        label_visibility="collapsed"
     )
 
     st.markdown("---")
-    st.markdown("### Display adjustment")
+    st.markdown("### Display")
     enh_strength = st.select_slider(
-        "Optional cosmetic adjustment",
+        "Cosmetic adjustment",
         options=["none", "gentle"],
         value="none",
         help="Off preserves the neural model output. Gentle only adjusts display contrast; it does not recover geographic detail."
     )
 
     st.markdown("---")
-    st.markdown("### Platform Details")
+    st.markdown("### About")
     st.markdown("""
-    - **Constellation:** Sentinel-2A / 2B / 2C
-    - **Input:** Sentinel-2 RGB or local raster imagery
-    - **Output:** 4× enlarged pixel grid
-    - **Method:** Bicubic base plus learned EDSR residual
-    - **Baseline:** Bicubic interpolation
-    - **Note:** Output is AI-enhanced imagery, not verified new ground detail.
+    Constellation — Sentinel-2A / 2B / 2C
+    Input — Sentinel-2 RGB or local raster imagery
+    Output — 4x enlarged pixel grid
+    Method — Bicubic base plus learned EDSR residual
+
+    Output is AI-enhanced imagery, not verified new ground detail.
     """)
 
 # ============================================================
@@ -361,19 +417,19 @@ in_img = None
 source_label = ""
 
 if data_source == "Live Copernicus Satellite Stream":
-    st.markdown("#### Live Copernicus Sentinel-2 Stream")
+    st.markdown("#### Live Copernicus Sentinel-2 stream")
     st.caption("Query the open Sentinel-2 L2A catalog for any location on Earth. Enter coordinates or select a preset city.")
 
-    input_mode = st.radio("Location Input:", ["Preset City", "Custom Coordinates"], horizontal=True)
+    input_mode = st.radio("Location input", ["Preset City", "Custom Coordinates"], horizontal=True)
 
     col_q1, col_q2 = st.columns([2, 1])
     if input_mode == "Preset City":
         with col_q1:
-            city_sel = st.selectbox("Target Location:", list(CITY_COORDINATES.keys()))
+            city_sel = st.selectbox("Target location", list(CITY_COORDINATES.keys()))
             coords = CITY_COORDINATES[city_sel]
             lat_val, lon_val = coords["lat"], coords["lon"]
         with col_q2:
-            max_cloud = st.slider("Max Cloud Cover (%)", 1, 30, 10)
+            max_cloud = st.slider("Max cloud cover (%)", 1, 30, 10)
     else:
         with col_q1:
             c1, c2 = st.columns(2)
@@ -382,9 +438,9 @@ if data_source == "Live Copernicus Satellite Stream":
             with c2:
                 lon_val = st.number_input("Longitude", min_value=-180.0, max_value=180.0, value=77.205, step=0.01, format="%.4f")
         with col_q2:
-            max_cloud = st.slider("Max Cloud Cover (%)", 1, 30, 10)
+            max_cloud = st.slider("Max cloud cover (%)", 1, 30, 10)
 
-    if st.button("Query Sentinel-2 and Super-Resolve"):
+    if st.button("Query Sentinel-2 and super-resolve"):
         with st.spinner("Connecting to Sentinel-2 STAC catalog..."):
             try:
                 meta = query_sentinel2_stac(lon_val, lat_val, max_cloud=max_cloud)
@@ -402,12 +458,12 @@ if data_source == "Live Copernicus Satellite Stream":
                 st.error(f"Satellite ingestion failed: {err}")
                 st.stop()
     else:
-        st.info("Enter any latitude/longitude on Earth or pick a city, then click 'Query Sentinel-2 and Super-Resolve'.")
+        st.info("Enter any latitude/longitude on Earth or pick a city, then click 'Query Sentinel-2 and super-resolve'.")
         st.stop()
 
 elif data_source == "Regional Benchmark Presets":
     preset_id = st.selectbox(
-        "Select Regional Landmark (Delhi NCR Sentinel-2 Granule):",
+        "Select regional landmark (Delhi NCR Sentinel-2 granule)",
         options=list(PRESETS.keys()),
         format_func=lambda k: PRESETS[k]["title"]
     )
@@ -420,7 +476,7 @@ elif data_source == "Regional Benchmark Presets":
         bi_img = Image.open(p["bicubic"]).convert("RGB")
         in_img = Image.open(p["input"]).convert("RGB")
     else:
-        with st.spinner("Processing 4x Super-Resolution..."):
+        with st.spinner("Processing 4x super-resolution..."):
             proc = get_processor()
             res = proc.enhance_file(p["input"], strength=enh_strength)
             sr_img = Image.fromarray((res["sr"] * 255.0).astype(np.uint8))
@@ -428,9 +484,9 @@ elif data_source == "Regional Benchmark Presets":
             in_img = Image.open(p["input"]).convert("RGB")
 
 else:
-    st.markdown("#### Local File Upload")
+    st.markdown("#### Local file upload")
     uploaded = st.file_uploader(
-        "Upload satellite imagery (GeoTIFF, JP2, PNG, JPEG):",
+        "Upload satellite imagery (GeoTIFF, JP2, PNG, JPEG)",
         type=["tif", "tiff", "jp2", "png", "jpg", "jpeg"]
     )
     if uploaded is not None:
@@ -439,7 +495,7 @@ else:
         temp_path = temp_dir / uploaded.name
         with open(temp_path, "wb") as f:
             f.write(uploaded.getvalue())
-        with st.spinner("Processing through 4x Super-Resolution engine..."):
+        with st.spinner("Processing through 4x super-resolution engine..."):
             proc = get_processor()
             res = proc.enhance_file(temp_path, strength=enh_strength)
             sr_img = Image.fromarray((res["sr"] * 255.0).astype(np.uint8))
@@ -466,32 +522,39 @@ if sr_img is not None and bi_img is not None:
     lap_gain = ((m_sr["laplacian_variance"] - m_bi["laplacian_variance"]) / max(1e-3, m_bi["laplacian_variance"])) * 100.0
     grad_gain = ((m_sr["gradient_energy"] - m_bi["gradient_energy"]) / max(1e-3, m_bi["gradient_energy"])) * 100.0
 
-    # KPI Cards
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown('<div class="kpi-card"><div class="kpi-val">4×</div><div class="kpi-lbl">Pixel-grid scale</div></div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-val">16x</div><div class="kpi-lbl">Pixel Density ({in_img.width}&sup2; &rarr; {sr_img.width}&sup2;)</div></div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-val">{m_sr["laplacian_variance"]:.1f}</div><div class="kpi-lbl">Output sharpness statistic</div></div>', unsafe_allow_html=True)
-    with c4:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-val">{m_sr["gradient_energy"]:.1f}</div><div class="kpi-lbl">Output edge statistic</div></div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="stat-row">
+        <div class="stat-item">
+            <div class="stat-val">4x</div>
+            <div class="stat-lbl">Pixel-grid scale</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-val">16x</div>
+            <div class="stat-lbl">Pixel density &middot; {in_img.width}&sup2; &rarr; {sr_img.width}&sup2;</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-val">{m_sr["laplacian_variance"]:.1f}</div>
+            <div class="stat-lbl">Sharpness statistic</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-val">{m_sr["gradient_energy"]:.1f}</div>
+            <div class="stat-lbl">Edge statistic</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-
-    # Tabs
     tab_curtain, tab_zoom, tab_metrics = st.tabs([
-        "Curtain Split Comparison",
-        "Synchronized Zoom Comparison",
-        "Quantitative Analytics"
+        "Curtain comparison",
+        "Synchronized zoom",
+        "Quantitative analytics"
     ])
 
     with tab_curtain:
-        st.caption("Drag the vertical divider to compare. Hold Shift and hover to magnify (3x zoom lens).")
+        st.caption("Drag the vertical divider to compare. Hold Shift and hover to magnify.")
         render_curtain_slider(sr_img, bi_img)
 
     with tab_zoom:
-        st.caption("Hover over either panel to magnify both views simultaneously at 4x. Move your cursor to inspect roads, rooftops, and field boundaries.")
+        st.caption("Hover over either panel to magnify both views simultaneously. Move your cursor to inspect roads, rooftops, and field boundaries.")
         render_zoom_comparison(bi_img, sr_img)
 
     with tab_metrics:
@@ -501,34 +564,33 @@ if sr_img is not None and bi_img is not None:
             "Metric": [
                 "Pixel-grid scale",
                 "Method",
-                "Total Pixels",
-                "Laplacian Variance (Sharpness)",
-                "Gradient Energy (Edge Density)",
+                "Total pixels",
+                "Laplacian variance (sharpness)",
+                "Gradient energy (edge density)",
             ],
-            "Sentinel-2 Baseline (10m)": [
-                "4× bicubic",
+            "Sentinel-2 baseline (10m)": [
+                "4x bicubic",
                 "Interpolation baseline",
                 f"{in_img.width} x {in_img.height} ({in_img.width*in_img.height:,} px)",
                 f"{m_bi['laplacian_variance']:.2f}",
                 f"{m_bi['gradient_energy']:.2f}",
             ],
             "GeoSR model output": [
-                "4× model output",
+                "4x model output",
                 "Bicubic + learned residual",
                 f"{sr_img.width} x {sr_img.height} ({sr_img.width*sr_img.height:,} px)",
                 f"{m_sr['laplacian_variance']:.2f}",
                 f"{m_sr['gradient_energy']:.2f}",
             ],
-            "Improvement": [
+            "Change": [
                 "Not a physical GSD claim",
                 "Not a ground-truth accuracy claim",
-                f"16x ({in_img.width*in_img.height:,} -> {sr_img.width*sr_img.height:,})",
+                f"16x ({in_img.width*in_img.height:,} to {sr_img.width*sr_img.height:,})",
                 f"+{lap_gain:.0f}%",
                 f"+{grad_gain:.0f}%",
             ]
         })
 
-    # Export
     st.markdown("---")
     st.markdown("### Export")
     btn1, btn2, _ = st.columns([1, 1, 2])
@@ -536,7 +598,7 @@ if sr_img is not None and bi_img is not None:
     buf_sr = io.BytesIO()
     sr_img.save(buf_sr, format="PNG")
     with btn1:
-        st.download_button("Download Enhanced 4X (PNG)", buf_sr.getvalue(),
+        st.download_button("Download enhanced (PNG)", buf_sr.getvalue(),
                            "geosr_enhanced_4x.png", "image/png", use_container_width=True)
 
     buf_comp = io.BytesIO()
@@ -545,5 +607,5 @@ if sr_img is not None and bi_img is not None:
     comp.paste(sr_img, (sr_img.width, 0))
     comp.save(buf_comp, format="PNG")
     with btn2:
-        st.download_button("Download Comparison (PNG)", buf_comp.getvalue(),
+        st.download_button("Download comparison (PNG)", buf_comp.getvalue(),
                            "geosr_comparison.png", "image/png", use_container_width=True)
